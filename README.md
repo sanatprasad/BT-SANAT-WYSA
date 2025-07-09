@@ -1,4 +1,4 @@
-# LMS Backend API
+# WYSA Backend API
 
 ## Overview
 This project is a backend API built with Node.js, Express, and MongoDB. It provides endpoints for user management and sleep assessment, and is designed to be scalable and secure. The API is documented using Swagger (OpenAPI 3.0).
