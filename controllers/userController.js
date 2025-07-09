@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const transporter = require('../config/emailconfig');
-const mail = require('../middlewares/emailsender');
 const time = require('../middlewares/epochTime');
 const dotenv = require('dotenv');
 const fs = require('fs');
