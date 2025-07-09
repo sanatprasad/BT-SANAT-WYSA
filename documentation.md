@@ -91,7 +91,7 @@ The SleepEntry model stores sleep assessment data for users.
 ### Sleep Controller (`controllers/sleepController.js`)
 - **addSleepEntry**: Adds a new sleep entry for the user.
 - **getSleepHistory**: Returns all sleep entries for the current user.
-- **deleteSleepEntry**: Deletes a sleep entry by ID for the current user.
+
 
 ## Routes & Endpoints
 ### User Routes (`routes/userRoutes.js`)
@@ -109,7 +109,7 @@ The SleepEntry model stores sleep assessment data for users.
 ### Sleep Routes (`routes/sleepRoutes.js`)
 - `POST /api/sleep/submit` - Add sleep entry (JWT required)
 - `GET /api/sleep/history` - Get sleep history (JWT required)
-- `DELETE /api/sleep/:id` - Delete sleep entry by ID (JWT required)
+
 
 ## Middlewares
 ### JWT Verification (`middlewares/verifyJWT.js`)
@@ -117,9 +117,6 @@ The SleepEntry model stores sleep assessment data for users.
 
 ### Input Validation (`middlewares/validation.js`)
 - Validates user registration input for required fields, email format, and password strength.
-
-### Email Sender (`middlewares/emailsender.js`)
-- Sends email notifications for book issue/submit actions using Nodemailer.
 
 ### Epoch Time Utility (`middlewares/epochTime.js`)
 - Provides functions to get current epoch time and epoch time 7 days ahead.
@@ -133,120 +130,4 @@ The SleepEntry model stores sleep assessment data for users.
 - **CORS**: Configured in `server.js` to allow cross-origin requests.
 - **Multer**: Used for handling file uploads (profile images) in user registration.
 
----
 
-For further details, refer to the source code and Swagger documentation. 
-
----
-
-Based on your code and documentation, here’s a focused analysis of what could be causing the "invalid token" error, and what you should check or fix:
-
----
-
-## 1. **JWT Secret Consistency**
-
-**Problem:**  
-The secret used to sign the JWT (`process.env.SECRET_KEY`) must be exactly the same when verifying it in the middleware.
-
-**Check:**  
-- Is `SECRET_KEY` set in your `.env` file?
-- Is it loaded correctly in both your controller and middleware?
-- Are you restarting your server after changing `.env`?
-
-**How to check:**  
-Add this line in both your login controller and `verifyJWT.js`:
-```js
-console.log("JWT Secret:", process.env.SECRET_KEY);
-```
-If the output is different or undefined, your secret is not set up correctly.
-
----
-
-## 2. **Authorization Header Format**
-
-**Problem:**  
-The middleware expects the header to be:
-```
-Authorization: Bearer <token>
-```
-If you send just the token, or use a different prefix, it will fail.
-
-**Check:**  
-- Are you sending the header exactly as above?
-- In Swagger, after clicking "Authorize", are you pasting `Bearer <token>` (not just the token)?
-
-**How to check:**  
-Add this in your middleware:
-```js
-console.log("Auth Header:", req.headers['authorization']);
-```
-If it’s missing or not in the right format, you’ll see it in the logs.
-
----
-
-## 3. **Token Expiry**
-
-**Problem:**  
-Tokens are set to expire in 1 hour. If you use an old token, it will be invalid.
-
-**Check:**  
-- Are you using a fresh token from a recent login?
-- Are you copying the token correctly?
-
----
-
-## 4. **Token Signing and Verification**
-
-**Problem:**  
-If you change the payload structure or the secret, old tokens become invalid.
-
-**Check:**  
-- Are you using the same payload structure for signing and verifying?
-- Are you using the same secret?
-
----
-
-## 5. **Swagger Security Definition**
-
-**Observation:**  
-Your Swagger docs use `bearerAuth` for protected endpoints.  
-If you don’t authorize in Swagger UI, or if you paste the token without the `Bearer ` prefix, you’ll get an invalid token error.
-
----
-
-## 6. **Code Review: No Obvious Bugs**
-
-- Your `verifyJWT.js` is correct and standard.
-- Your login controller signs the token with the correct payload and secret.
-- Your protected routes use the middleware as expected.
-
----
-
-## 7. **Possible Issues in Practice**
-
-- **.env not loaded:** If you run the server without `dotenv.config()`, or if `.env` is missing, `process.env.SECRET_KEY` will be undefined.
-- **Multiple .env files:** If you have more than one `.env` or run from a different directory, the secret may not load.
-- **Token from another environment:** If you use a token from a different server or after changing the secret, it will be invalid.
-
----
-
-## **What To Do Next**
-
-1. **Check your .env file:**  
-   Make sure it contains:
-   ```
-   SECRET_KEY=your_secret_here
-   ```
-2. **Restart your server** after any change to `.env`.
-3. **Log the secret and auth header** as shown above.
-4. **Use a fresh token** from a new login.
-5. **In Swagger, always use** `Bearer <token>` when authorizing.
-
----
-
-### If you follow these steps and still get "invalid token", please share:
-- The exact error message from the server logs.
-- The value of the `Authorization` header being sent.
-- The output of `console.log("JWT Secret:", process.env.SECRET_KEY);` in both the controller and middleware.
-
-This will help pinpoint the issue precisely! 
